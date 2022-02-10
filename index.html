@@ -4,16 +4,16 @@
 <head>
     <!-- #region importing-->
     <meta charset="UTF-8">
-    <title>CodePen - Chat Widget</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="lib.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
-    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css'>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="./style.css">
-    <script src="lib.js"></script>
+    <!-- #endregion importing-->
+    <title>Document</title>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyC_ooXaKdthSi0z8MyEQ__bE8n7iM_d4TE",
@@ -27,197 +27,245 @@
         };
         const app = firebase.initializeApp(firebaseConfig);
     </script>
-    <!-- #endregion importing-->
+    <!-- #region css-->
+    <style>
+        .container {
+            background-color: rgb(146, 143, 140);
+            width: 100%;
+            height: 200px;
+        }
+        
+        .Modal {
+            display: block;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            padding-top: 100px;
+            background-color: rgba(53, 50, 50, 0.4);
+            -webkit-transition: 0.5s;
+            overflow: auto;
+            transition: all 0.3s linear;
+        }
+        
+        .Modal-content {
+            background-color: #3b3838;
+            margin: auto;
+            padding: 20px;
+            border-radius: 4px;
+            max-width: 350px;
+            height: 450px;
+        }
+        
+        .ModalOpen {
+            overflow: hidden;
+        }
+        
+        .is-hidden {
+            display: none;
+        }
+        
+        .is-visuallyHidden {
+            opacity: 0;
+        }
+        
+        .Close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 24px;
+        }
+        
+        .Close:hover,
+        .Close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .is-blurred {
+            filter: blur(2px);
+            -webkit-filter: blur(2px);
+        }
+        
+        input[type=text] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            margin-top: 50px;
+        }
+        
+        input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+        
+        input[type=button] {
+            width: 100%;
+            height: 5%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid rgb(165, 105, 105);
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+        
+        input[type=button]:hover {
+            background-color: rgb(88, 113, 255);
+            color: white;
+        }
+    </style>
+    <!-- #endregion css-->
+    <!-- #region functions-->
     <script>
-        $("#wizard-picture").change(function() {
-            readURL(this);
-        });
-    </script>
-    <script>
-        function logOut() {
-            if (confirm('Hesabınızdan çıkılacak. Onaylıyor musunuz?')) {
-                // Save it!
-
-                setTimeout(() => {
-                    setTimeout(() => {
-                        window.localStorage.removeItem('prettyAuth');
-                        document.getElementById('routeLogin').click();
-                    }, 1000);
-                    var auth = window.localStorage.getItem('prettyAuth').jparse();
-                    auth.active = false;
-                    firebase.database().ref("Users/" + auth.id).update(auth);
-
-                }, 1000);
-
+        function openModal() {
+            if (window.localStorage.getItem('prettyAuth') != null) {
+                routeMain();
             } else {
-                // Do nothing!
-
+                var modal = document.getElementById('loginModal');
+                var body = document.getElementsByTagName('body');
+                var container = document.getElementById('myContainer');
+                var btnOpen = document.getElementById("myBtn");
+                var btnClose = document.getElementById("closeModal");
+                modal.className = "Modal is-visuallyHidden";
+                setTimeout(function() {
+                    container.className = "MainContainer is-blurred";
+                    modal.className = "Modal";
+                }, 100);
+                container.parentElement.className = "ModalOpen";
             }
         }
+
+        function btnClose() {
+            var modal = document.getElementById('loginModal');
+            var body = document.getElementsByTagName('body');
+            var container = document.getElementById('myContainer');
+            modal.className = "Modal is-hidden is-visuallyHidden";
+            body.className = "";
+            container.className = "MainContainer";
+            container.parentElement.className = "";
+        }
+
+        function loginHandler() {
+            var txtUsername = document.getElementById('id_txtUsername');
+            var txtPassword = document.getElementById('id_txtPassword');
+            var response = null;
+            var flag = false;
+            var kayit = null;
+            var kayit_id = null;
+            if (txtUsername.value.trim().length != 0 && txtPassword.value.trim().length != 0) {
+                firebase.database().ref('Users/').on("value", (snapshot) => {
+                    response = snapshot.val();
+                    //console.log(Object.values(response))
+                    Object.values(response).forEach(element => {
+                        if (element.username == txtUsername.value.trim() && element.password == txtPassword.value.trim()) {
+                            flag = true;
+                            kayit = element;
+                            for (let i = 0; i < Object.keys(response).length; i++) {
+                                if (kayit.username == response[Object.keys(response)[i]].username) {
+                                    kayit_id = Object.keys(response)[i];
+                                    kayit.jpush("id", kayit_id);
+                                }
+                            }
+                        }
+                    });
+                    if (flag) {
+                        document.getElementById('requiredSpan').innerHTML = "*Giriş Başarılı";
+                        document.getElementById('requiredSpan').style.color = "mediumspringgreen";
+                        setTimeout(() => {
+                            document.getElementById('requiredSpan').innerHTML = "";
+                            document.getElementById('requiredSpan').style.color = "red";
+                            kayit.active = true;
+                            setTimeout(() => {
+                                firebase.database().ref("Users/" + kayit_id).update(kayit);
+                                window.localStorage.setItem('prettyAuth', kayit.jstring());
+                                routeMain();
+                            }, 1000);
+                        }, 2000);
+                    } else if (!flag) {
+                        document.getElementById('requiredSpan').innerHTML = "*Bilgiler hatalı";
+                        document.getElementById('requiredSpan').style.color = "red";
+                        setTimeout(() => {
+                            document.getElementById('requiredSpan').innerHTML = "";
+                        }, 2000);
+                    }
+                })
+            } else {
+                require(txtUsername, txtPassword);
+            }
+        }
+
+        function require(a, b) {
+            document.getElementById('requiredSpan').innerHTML = "Alanları boş bıraktınız.";
+            if (a.value.trim().length == 0) {
+                a.style.border = "3px solid red";
+            }
+            if (b.value.trim().length == 0) {
+                b.style.border = "3px solid red";
+            }
+            setTimeout(() => {
+                document.getElementById('requiredSpan').innerHTML = "";
+                a.style.border = "none";
+                b.style.border = "none";
+            }, 1000);
+        }
+
+        function routeCreateNewAccount() {
+            document.getElementById('routeRegister').click();
+            btnClose()
+        }
+
+        function routeMain() {
+            document.getElementById('routeMain').click();
+            btnClose()
+        }
+    </script>
+    <!-- #endregion functions-->
+    <script type="text/javascript">
+        function preback() {
+            window.history.forward();
+        }
+        setTimeout(() => {
+            preback()
+        }, 0);
     </script>
 </head>
 
-<body>
-    <a id="routeLogin" href="./login.html"></a>
-    <div style="display: flex; width: 100%; align-items:flex-end;justify-content: flex-end; padding-right: 10px;">
-        <input id="exitBtn" type="button" value="X" data-toggle="tooltip" title="Çıkış" onclick="logOut()" />
-        <i id="settingBtn" class="fa fa-gear" data-toggle="tooltip" title="Hesap Ayarları" onclick="settingsOnChanges(true)"></i>
-
+<body onload="openModal()">
+    <div class="container" id="myContainer">
+        <a id="routeRegister" href="./register.html"></a>
+        <a id="routeMain" href="./chat.html"></a>
     </div>
-    <!-- partial:index.partial.html -->
-    <div class="container clearfix">
-        <!-- #region CONTACT LIST-->
-        <div class="people-list" id="people-list">
-            <div class="search">
-                <input type="text" placeholder="search" disabled />
-                <i class="fa fa-search"></i>
+    <div id="loginModal" class="Modal is-hidden is-visuallyHidden">
+        <!-- Modal content -->
+        <div class="Modal-content">
+            <div style="background-color: red; width: 100%;">
+                <span id="closeModal" class="Close" onclick="btnClose()">&times;</span>
             </div>
-            <ul class="list" id="list-contact"></ul>
-        </div>
-        <!-- #endregion CONTACT LIST-->
-        <div class="chat">
-            <!-- #region CHAT HEADER-->
-            <div class="chat-header clearfix">
-                <img class="contactUserProfileImage" src="" alt="avatar" />
-                <div class="chat-about">
-                    <div class="chat-with">Chat with Vincent Porter</div>
-                    <div class="chat-num-messages">already 1 902 messages</div>
-                </div>
-                <i class="fa fa-close" style="color:black; cursor:crosshair" title="Yazışmayı Kapat" onclick="setHiddenChatArea(true)"></i>
+            <div>
+                <h1 style="color:aliceblue">Login Account</h1>
             </div>
-            <!-- #endregion CHAT HEADER-->
-
-            <!-- #region MESSAGE AREA-->
-            <div class="chat-history">
-                <ul>
-                    <!--MESAJ GEÇMİŞİNİN BASILDIĞI İNDEX-->
-                </ul>
-                <div class="message-writing-state">
-                    <i class="fa fa-circle online"></i>
-                    <i class="fa fa-circle online" style="color: #AED2A6"></i>
-                    <i class="fa fa-circle online" style="color:#DAE9DA"></i> Yazıyor...
-                </div>
-            </div>
-            <!-- #endregion MESSAGE AREA-->
-
-            <!-- #region MESSAGE SEND AREA-->
-            <div class="chat-message clearfix">
-                <textarea name="message-to-send" id="message-to-send" placeholder="Type your message" rows="3"></textarea>
-                <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
-                <i class="fa fa-file-image-o"></i>
-                <button>Send</button>
-            </div>
-            <!-- #endregion MESSAGE SEND AREA-->
-            <!----
-            <div id="advertisements" style="height: 852px; width: 100%; display: flex; background-color: rgb(54, 51, 51);border-bottom-right-radius: 8px;border-top-right-radius: 8px; flex-direction: column; overflow:auto">
-                
-                  <div style="width: 95%;background-color: #424141; height:max-content; margin: 10px; border-radius: 10px;">
-                    <p style="font-size: 28px; font-weight: bolder; margin: 15px; color:rgb(148, 144, 144)">Uygulama Haber Taslağı</p>
-                    <p style="font-size: 14px; font-style: italic; margin: 15px; color:white">Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...</p>
-                    <div style="overflow-x: scroll; max-height:150px; position: relative;">
-                        <img style="width: 100px; height: 100px; margin: 15px; border-radius: 15px;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png" />
-                        <img style="width: 100px; height: 100px; margin: 15px; border-radius: 15px;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png" />
-                        <img style="width: 100px; height: 100px; margin: 15px; border-radius: 15px;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png" />
-                        <img style="width: 100px; height: 100px; margin: 15px; border-radius: 15px;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png" />
-                        <img style="width: 100px; height: 100px; margin: 15px; border-radius: 15px;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png" />
-                    </div>
-
-                </div>
-
-                <div style="width: 95%;background-color: #0066ff; height:max-content; margin: 10px; border-radius: 10px;">
-                    <p style="font-size: 24px; font-weight: bolder; margin: 10px; color:white">Header</p>
-                    <p style="font-size: 16px; font-style: italic; margin: 10px; color:white">İçerik bunlardan ibaret ancak bunlardan önemli olanları seninde ilgini çekebilecek</p>
-                </div>
-                
-
-            </div>
-            ---->
-        </div>
-
-    </div>
-    <!-- #region MESSAGE YOU-->
-    <script id="message" type="text/x-handlebars-template">
-        <li class="clearfix">
-            <div class="message-data align-right">
-                <span class="message-data-time">{{responseDate}}</span> &nbsp; &nbsp;
-                <span class="message-sender-name">{{responseTo}}</span> <i class="fa fa-circle me"></i>
-            </div>
-            <div class="message other-message float-right">{{responseMessage}}</div>
-        </li>
-    </script>
-    <!-- #endregion MESSAGE YOU-->
-
-    <!-- #region MESSAGE FROM-->
-    <script id="message-from" type="text/x-handlebars-template">
-        <li>
-            <div class="message-data">
-                <span class="message-from-name"><i class="fa fa-circle online"></i>{{responseTo}}</span>
-                <span class="message-from-time">{{responseDate}}</span>
-            </div>
-            <div class="message my-message">{{responseMessage}}</div>
-        </li>
-    </script>
-    <!-- #endregion MESSAGE FROM-->
-
-    <!-- #region CONTACT LIST DYNAMIC-->
-    <script id="contact-list" type="text/x-handlebars-template">
-        <li class="clearfix" type="text/x-handlebars-template" onclick="clickUser(this)">
-            <img id={{id}} src={{profileImage}} alt="avatar" />
-            <div class="about">
-                <div class="name">{{username}}</div>
-                <div class="status">
-                    <i id="activateState">{{active}}</i>
-                </div>
-            </div>
-        </li>
-    </script>
-    <!-- #endregion CONTACT LIST DYNAMIC-->
-    <div class="SettingPopUpContainer" id="settings">
-        <div style=" width: 100%; height: 30%;margin-top: 10px; ">
-            <div style="justify-content: flex-end; align-items: flex-end; display: flex;">
-                <input id="exitBtn" type="button" value="X" data-toggle="tooltip" title="Çıkış" onclick="settingsOnChanges(false)" />
-            </div>
-
-            <div class="picture-container">
-                <div class="picture">
-                    <img src="https://lh3.googleusercontent.com/LfmMVU71g-HKXTCP_QWlDOemmWg4Dn1rJjxeEsZKMNaQprgunDTtEuzmcwUBgupKQVTuP0vczT9bH32ywaF7h68mF-osUSBAeM6MxyhvJhG6HKZMTYjgEv3WkWCfLB7czfODidNQPdja99HMb4qhCY1uFS8X0OQOVGeuhdHy8ln7eyr-6MnkCcy64wl6S_S6ep9j7aJIIopZ9wxk7Iqm-gFjmBtg6KJVkBD0IA6BnS-XlIVpbqL5LYi62elCrbDgiaD6Oe8uluucbYeL1i9kgr4c1b_NBSNe6zFwj7vrju4Zdbax-GPHmiuirf2h86eKdRl7A5h8PXGrCDNIYMID-J7_KuHKqaM-I7W5yI00QDpG9x5q5xOQMgCy1bbu3St1paqt9KHrvNS_SCx-QJgBTOIWW6T0DHVlvV_9YF5UZpN7aV5a79xvN1Gdrc7spvSs82v6gta8AJHCgzNSWQw5QUR8EN_-cTPF6S-vifLa2KtRdRAV7q-CQvhMrbBCaEYY73bQcPZFd9XE7HIbHXwXYA=s200-no"
-                        class="picture-src" id="wizardPicturePreview" title="">
-                    <img style="width: 150px; height: 150px;" />
-                    <input type="file" id="wizard-picture">
-                </div>
-                <h6 class="">Choose Picture</h6>
-            </div>
-        </div>
-        <div style=" width: 90%; height: 70%; margin-top: 50px;">
-            <div style="display: flex; flex-direction: row; align-items: center;">
-                <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; width: 50%; ">
-                    <label style="margin-right: 15px; font-size: 16px;">Profil İsmi</label>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; align-items: flex-end; width: 100%;">
-                    <input id="settingText-Username" type="text" value="" readonly />
-                </div>
-            </div>
-            <div style="display: flex; flex-direction: row; align-items: center;">
-                <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; width: 50%;">
-                    <label style="margin-right: 15px; font-size: 16px;">Şifre</label>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; align-items: flex-end; width: 100%;">
-                    <input id="settingText-Password" type="text" value="" readonly />
-                </div>
-            </div>
-            <div style=" text-align:center; align-items: center;">
-                <input onclick="saveChanges()" type="button" value="Save Changes" style="width: 40%; height:30px;margin-top: 50px; background-color: #9adf8b; color: #0430f5; font-size: 13px; font-weight: bolder;" />
+            <div>
+                <input type="text" placeholder="Username" name="uname" id="id_txtUsername" required>
+                <input type="password" placeholder="Password" name="uname" id="id_txtPassword" required>
+                <span id="requiredSpan" style="color:red"></span>
+                <input type="button" value="Login" onclick="loginHandler()" />
+                <a style="text-align: center;  display: flex; align-items: center; justify-content: center; margin-top: 5px; " href="#" onclick="routeCreateNewAccount()">
+                              Create New Account
+                        </a>
             </div>
         </div>
     </div>
-    <!-- #region PARTIAL LIB-->
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.0/handlebars.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js'></script>
-    <script src="./script.js"></script>
-    <!-- #endregion PARTIAL LIB-->
 </body>
 
 </html>
