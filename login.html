@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- #region importing-->
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="lib.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+    <!-- #endregion importing-->
+    <title>Document</title>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_ooXaKdthSi0z8MyEQ__bE8n7iM_d4TE",
+            authDomain: "pretty-3be33.firebaseapp.com",
+            databaseURL: "https://pretty-3be33-default-rtdb.firebaseio.com",
+            projectId: "pretty-3be33",
+            storageBucket: "pretty-3be33.appspot.com",
+            messagingSenderId: "881387124210",
+            appId: "1:881387124210:web:fc0da9857f7c1467fde76b",
+            measurementId: "G-XYVJP5FP8X"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+    </script>
+    <!-- #region css-->
+    <style>
+        .container {
+            background-color: rgb(146, 143, 140);
+            width: 100%;
+            height: 200px;
+        }
+        
+        .Modal {
+            display: block;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            padding-top: 100px;
+            background-color: rgba(53, 50, 50, 0.4);
+            -webkit-transition: 0.5s;
+            overflow: auto;
+            transition: all 0.3s linear;
+        }
+        
+        .Modal-content {
+            background-color: #3b3838;
+            margin: auto;
+            padding: 20px;
+            border-radius: 4px;
+            max-width: 350px;
+            height: 450px;
+        }
+        
+        .ModalOpen {
+            overflow: hidden;
+        }
+        
+        .is-hidden {
+            display: none;
+        }
+        
+        .is-visuallyHidden {
+            opacity: 0;
+        }
+        
+        .Close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 24px;
+        }
+        
+        .Close:hover,
+        .Close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .is-blurred {
+            filter: blur(2px);
+            -webkit-filter: blur(2px);
+        }
+        
+        input[type=text] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            margin-top: 50px;
+        }
+        
+        input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+        
+        input[type=button] {
+            width: 100%;
+            height: 5%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid rgb(165, 105, 105);
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+        
+        input[type=button]:hover {
+            background-color: rgb(88, 113, 255);
+            color: white;
+        }
+    </style>
+    <!-- #endregion css-->
+    <!-- #region functions-->
+    <script>
+        function openModal() {
+            if (window.localStorage.getItem('prettyAuth') != null) {
+                routeMain();
+            } else {
+                var modal = document.getElementById('loginModal');
+                var body = document.getElementsByTagName('body');
+                var container = document.getElementById('myContainer');
+                var btnOpen = document.getElementById("myBtn");
+                var btnClose = document.getElementById("closeModal");
+                modal.className = "Modal is-visuallyHidden";
+                setTimeout(function() {
+                    container.className = "MainContainer is-blurred";
+                    modal.className = "Modal";
+                }, 100);
+                container.parentElement.className = "ModalOpen";
+            }
+        }
+
+        function btnClose() {
+            var modal = document.getElementById('loginModal');
+            var body = document.getElementsByTagName('body');
+            var container = document.getElementById('myContainer');
+            modal.className = "Modal is-hidden is-visuallyHidden";
+            body.className = "";
+            container.className = "MainContainer";
+            container.parentElement.className = "";
+        }
+
+        function loginHandler() {
+            var txtUsername = document.getElementById('id_txtUsername');
+            var txtPassword = document.getElementById('id_txtPassword');
+            var response = null;
+            var flag = false;
+            var kayit = null;
+            var kayit_id = null;
+            if (txtUsername.value.trim().length != 0 && txtPassword.value.trim().length != 0) {
+                firebase.database().ref('Users/').on("value", (snapshot) => {
+                    response = snapshot.val();
+                    //console.log(Object.values(response))
+                    Object.values(response).forEach(element => {
+                        if (element.username == txtUsername.value.trim() && element.password == txtPassword.value.trim()) {
+                            flag = true;
+                            kayit = element;
+                            for (let i = 0; i < Object.keys(response).length; i++) {
+                                if (kayit.username == response[Object.keys(response)[i]].username) {
+                                    kayit_id = Object.keys(response)[i];
+                                    kayit.jpush("id", kayit_id);
+                                }
+                            }
+                        }
+                    });
+                    if (flag) {
+                        document.getElementById('requiredSpan').innerHTML = "*Giriş Başarılı";
+                        document.getElementById('requiredSpan').style.color = "mediumspringgreen";
+                        setTimeout(() => {
+                            document.getElementById('requiredSpan').innerHTML = "";
+                            document.getElementById('requiredSpan').style.color = "red";
+                            kayit.active = true;
+                            setTimeout(() => {
+                                firebase.database().ref("Users/" + kayit_id).update(kayit);
+                                window.localStorage.setItem('prettyAuth', kayit.jstring());
+                                routeMain();
+                            }, 1000);
+                        }, 2000);
+                    } else if (!flag) {
+                        document.getElementById('requiredSpan').innerHTML = "*Bilgiler hatalı";
+                        document.getElementById('requiredSpan').style.color = "red";
+                        setTimeout(() => {
+                            document.getElementById('requiredSpan').innerHTML = "";
+                        }, 2000);
+                    }
+                })
+            } else {
+                require(txtUsername, txtPassword);
+            }
+        }
+
+        function require(a, b) {
+            document.getElementById('requiredSpan').innerHTML = "Alanları boş bıraktınız.";
+            if (a.value.trim().length == 0) {
+                a.style.border = "3px solid red";
+            }
+            if (b.value.trim().length == 0) {
+                b.style.border = "3px solid red";
+            }
+            setTimeout(() => {
+                document.getElementById('requiredSpan').innerHTML = "";
+                a.style.border = "none";
+                b.style.border = "none";
+            }, 1000);
+        }
+
+        function routeCreateNewAccount() {
+            document.getElementById('routeRegister').click();
+            btnClose()
+        }
+
+        function routeMain() {
+            document.getElementById('routeMain').click();
+            btnClose()
+        }
+    </script>
+    <!-- #endregion functions-->
+    <script type="text/javascript">
+        function preback() {
+            window.history.forward();
+        }
+        setTimeout(() => {
+            preback()
+        }, 0);
+    </script>
+</head>
+
+<body onload="openModal()">
+    <div class="container" id="myContainer">
+        <a id="routeRegister" href="./register.html"></a>
+        <a id="routeMain" href="./index.html"></a>
+    </div>
+    <div id="loginModal" class="Modal is-hidden is-visuallyHidden">
+        <!-- Modal content -->
+        <div class="Modal-content">
+            <div style="background-color: red; width: 100%;">
+                <span id="closeModal" class="Close" onclick="btnClose()">&times;</span>
+            </div>
+            <div>
+                <h1 style="color:aliceblue">Login Account</h1>
+            </div>
+            <div>
+                <input type="text" placeholder="Username" name="uname" id="id_txtUsername" required>
+                <input type="password" placeholder="Password" name="uname" id="id_txtPassword" required>
+                <span id="requiredSpan" style="color:red"></span>
+                <input type="button" value="Login" onclick="loginHandler()" />
+                <a style="text-align: center;  display: flex; align-items: center; justify-content: center; margin-top: 5px; " href="#" onclick="routeCreateNewAccount()">
+                              Create New Account
+                        </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

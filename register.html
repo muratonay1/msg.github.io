@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <!-- #region importing-->
+      <meta charset="UTF-8">
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+            integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+            integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+            crossorigin="anonymous"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+      <script src="lib.js"></script>
+      <script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
+      <!-- #endregion importing-->
+      <title>Document</title>
+      <script>
+            const firebaseConfig = {
+                  apiKey: "AIzaSyC_ooXaKdthSi0z8MyEQ__bE8n7iM_d4TE",
+                  authDomain: "pretty-3be33.firebaseapp.com",
+                  databaseURL: "https://pretty-3be33-default-rtdb.firebaseio.com",
+                  projectId: "pretty-3be33",
+                  storageBucket: "pretty-3be33.appspot.com",
+                  messagingSenderId: "881387124210",
+                  appId: "1:881387124210:web:fc0da9857f7c1467fde76b",
+                  measurementId: "G-XYVJP5FP8X"
+            };
+            const app = firebase.initializeApp(firebaseConfig);
+      </script>
+
+      <!-- #region css-->
+      <style>
+            .container {
+                  background-color: rgb(146, 143, 140);
+                  width: 100%;
+                  height: 200px;
+
+            }
+
+            .Modal {
+                  display: block;
+                  position: fixed;
+                  left: 0;
+                  top: 0;
+                  z-index: 9999;
+                  width: 100%;
+                  height: 100%;
+                  padding-top: 100px;
+                  background-color: rgba(53, 50, 50, 0.4);
+                  -webkit-transition: 0.5s;
+                  overflow: auto;
+                  transition: all 0.3s linear;
+            }
+
+            .Modal-content {
+                  background-color: #3b3838;
+                  margin: auto;
+                  padding: 20px;
+                  border-radius: 4px;
+                  max-width: 350px;
+                  height: 550px;
+            }
+
+            .ModalOpen {
+                  overflow: hidden;
+            }
+
+            .is-hidden {
+                  display: none;
+            }
+
+            .is-visuallyHidden {
+                  opacity: 0;
+            }
+
+            .Close {
+                  color: #aaaaaa;
+                  float: right;
+                  font-size: 24px;
+            }
+
+            .Close:hover,
+            .Close:focus {
+                  color: #000;
+                  text-decoration: none;
+                  cursor: pointer;
+            }
+
+            .is-blurred {
+                  filter: blur(2px);
+                  -webkit-filter: blur(2px);
+            }
+
+            input[type=text] {
+                  width: 100%;
+                  padding: 12px 20px;
+                  margin: 8px 0;
+                  display: inline-block;
+                  border: 1px solid #ccc;
+                  box-sizing: border-box;
+                  ;
+            }
+
+            input[type=password] {
+                  width: 100%;
+                  padding: 12px 20px;
+                  margin: 8px 0;
+                  display: inline-block;
+                  border: 1px solid #ccc;
+                  box-sizing: border-box;
+                  margin-top: 5px;
+            }
+
+            input[type=button] {
+                  width: 100%;
+                  height: 5%;
+                  padding: 12px 20px;
+                  margin: 8px 0;
+                  display: inline-block;
+                  border: 1px solid rgb(165, 105, 105);
+                  box-sizing: border-box;
+                  margin-top: 5px;
+            }
+
+            input[type=button]:hover {
+                  background-color: rgb(88, 113, 255);
+                  color: white;
+            }
+
+            #requiredSpan {
+                  color: red;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+            }
+      </style>
+      <!-- #endregion css-->
+
+      <!-- #region functions-->
+      <script>
+            function openModal() {
+                  var modal = document.getElementById('registerModal');
+                  var body = document.getElementsByTagName('body');
+                  var container = document.getElementById('myContainer');
+                  var btnOpen = document.getElementById("myBtn");
+                  var btnClose = document.getElementById("closeModal");
+                  modal.className = "Modal is-visuallyHidden";
+                  setTimeout(function () {
+                        container.className = "MainContainer is-blurred";
+                        modal.className = "Modal";
+                  }, 100);
+                  container.parentElement.className = "ModalOpen";
+            }
+            function btnClose() {
+                  var modal = document.getElementById('registerModal');
+                  var body = document.getElementsByTagName('body');
+                  var container = document.getElementById('myContainer');
+                  modal.className = "Modal is-hidden is-visuallyHidden";
+                  body.className = "";
+                  container.className = "MainContainer";
+                  container.parentElement.className = "";
+            }
+            function registerHandler() {
+                  var txtUsername = document.getElementById('id_txtUsername');
+                  var txtPassword = document.getElementById('id_txtPassword');
+                  var txtRepeatPassword = document.getElementById('id_txtRepeatPassword');
+                  var response = null;
+                  var flag = false;
+                  var kayit = null;
+                  if (txtUsername.value.trim().length != 0 && txtPassword.value.trim().length != 0 && txtRepeatPassword.value.trim().length != 0) {
+                        if (txtPassword.value.trim() == txtRepeatPassword.value.trim()) {
+                              firebase.database().ref('Users/').on("value", (snapshot) => {
+                                    response = snapshot.val();
+                                    //console.log(Object.values(response))
+                                    Object.values(response).forEach(element => {
+                                          if (element.username == txtUsername.value.trim()) {
+                                                flag = true;
+                                                kayit = element;
+                                          }
+                                    });
+                                    setTimeout(() => {
+
+                                    }, 1000);
+                                    if (flag) {
+                                          console.log("kayıt bulundu")
+                                          document.getElementById('requiredSpan').innerHTML = "Böyle bir kullanıcı zaten mevcut";
+                                          setTimeout(() => {
+                                                document.getElementById('requiredSpan').innerHTML = "";
+                                          }, 1000);
+                                    }
+                                    if (!flag) {
+                                          firebase.database().ref('Users/').push().set({
+                                                "username": txtUsername.value,
+                                                "token": "pretty-id" + Math.random(100001, 999999).toString(),
+                                                "password": txtPassword.value,
+                                                "active": false
+                                          })
+                                          document.getElementById('requiredSpan').innerHTML = "Kayıt Başarılı";
+                                          document.getElementById('requiredSpan').style.color = "	mediumspringgreen";
+                                          setTimeout(() => {
+                                                document.getElementById('requiredSpan').innerHTML = "";
+                                                document.getElementById('requiredSpan').style.color = "	red";
+                                          }, 1000);
+                                    }
+                              })
+                        }
+                        else {
+                              document.getElementById('requiredSpan').innerHTML = "Şifreler Uyuşmuyor";
+                        }
+                  }
+                  else {
+                        require(txtUsername, txtPassword, txtRepeatPassword);
+                  }
+            }
+            function require(a, b, c) {
+                  document.getElementById('requiredSpan').innerHTML = "*Alanlar Boş Bırakılamaz";
+                  if (a.value.trim().length == 0) {
+                        a.style.border = "3px solid red";
+                  }
+                  if (b.value.trim().length == 0) {
+                        b.style.border = "3px solid red";
+                  }
+                  if (c.value.trim().length == 0) {
+                        c.style.border = "3px solid red";
+                  }
+                  setTimeout(() => {
+                        document.getElementById('requiredSpan').innerHTML = "";
+                        a.style.border = "none";
+                        b.style.border = "none";
+                        c.style.border = "none";
+                  }, 1000);
+            }
+            function routeLogin() {
+
+                  document.getElementById('routeLogin').click();
+                  btnClose()
+            }
+      </script>
+      <!-- #endregion functions-->
+      <script type="text/javascript">
+            function preback() {
+                  window.history.forward();
+            }
+            setTimeout(() => {
+                  preback()
+            }, 0);
+      </script>
+</head>
+
+<body onload="openModal()">
+      <div class="container" id="myContainer">
+            <a id="routeLogin" href="./login.html"></a>
+      </div>
+      <div id="registerModal" class="Modal is-hidden is-visuallyHidden">
+            <!-- Modal content -->
+            <div class="Modal-content">
+                  <div style="background-color: red; width: 100%;">
+                        <span id="closeModal" class="Close" onclick="btnClose()">&times;</span>
+                  </div>
+                  <div>
+                        <h1 style="color:aliceblue">Create New Account</h1>
+                  </div>
+                  <div>
+                        <!----
+                              <div style="align-items: center;justify-content: center;align-content: center;text-align: center;">
+                                    <img style="width: 130px; height: 110px; border-radius: 50%;"
+                                          src="https://www.woolha.com/media/2020/03/flutter-circleavatar-minradius-maxradius.jpg"
+                                          alt="Profile Image" />
+                                          <input type="file" class="filestyle" data-classButton="btn btn-primary" data-input="false" data-classIcon="icon-plus" data-buttonText="Your label here.">
+
+                              </div>-->
+                        <input type="text" placeholder="Username" name="uname" id="id_txtUsername" required>
+                        <input type="password" placeholder="Password" name="uname" id="id_txtPassword" required>
+                        <input type="password" placeholder="Repeat Password" name="uname" id="id_txtRepeatPassword"
+                              required>
+                        <span id="requiredSpan"></span>
+                        <input type="button" value="Create Account" onclick="registerHandler()" />
+                        <a style="text-align: center;  display: flex; align-items: center; justify-content: center; margin-top: 5px; "
+                              href="#" onclick="routeLogin()">
+                              Redirect to login
+                        </a>
+                  </div>
+            </div>
+      </div>
+</body>
+
+</html>
