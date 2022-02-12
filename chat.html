@@ -4,7 +4,7 @@
 <head>
     <!-- #region importing-->
     <meta charset="UTF-8">
-    <title>Chat Template</title>
+    <title>CodePen - Chat Widget</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
@@ -58,6 +58,7 @@
 </head>
 
 <body>
+    <h3 id="globalIp" style="color:black; font-size: 30px;text-align: center; margin: 10px;"></h3>
     <a id="routeLogin" href="./index.html"></a>
     <div style="display: flex; width: 100%; align-items:flex-end;justify-content: flex-end; padding-right: 10px;">
         <input id="exitBtn" type="button" value="X" data-toggle="tooltip" title="Çıkış" onclick="logOut()" />

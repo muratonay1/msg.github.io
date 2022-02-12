@@ -140,6 +140,7 @@
     <!-- #region functions-->
     <script>
         function openModal() {
+
             var modal = document.getElementById('registerModal');
             var body = document.getElementsByTagName('body');
             var container = document.getElementById('myContainer');
@@ -174,37 +175,67 @@
                 if (txtPassword.value.trim() == txtRepeatPassword.value.trim()) {
                     firebase.database().ref('Users/').on("value", (snapshot) => {
                         response = snapshot.val();
-                        //console.log(Object.values(response))
-                        Object.values(response).forEach(element => {
-                            if (element.username == txtUsername.value.trim()) {
-                                flag = true;
-                                kayit = element;
-                            }
-                        });
-                        setTimeout(() => {
+                        if (snapshot.val() != null || snapshot.val() != undefined || snapshot.val() != '') {
+                            Object.values(response).forEach(element => {
+                                if (element.username == txtUsername.value.trim()) {
+                                    flag = true;
+                                    kayit = element;
+                                }
+                            });
+                            setTimeout(() => {
 
-                        }, 1000);
-                        if (flag) {
-                            console.log("kayıt bulundu")
-                            document.getElementById('requiredSpan').innerHTML = "Böyle bir kullanıcı zaten mevcut";
-                            setTimeout(() => {
-                                document.getElementById('requiredSpan').innerHTML = "";
                             }, 1000);
+                            if (flag) {
+                                console.log("kayıt bulundu")
+                                document.getElementById('requiredSpan').innerHTML = "Böyle bir kullanıcı zaten mevcut";
+                                setTimeout(() => {
+                                    document.getElementById('requiredSpan').innerHTML = "";
+                                }, 1000);
+                            }
+                            if (!flag) {
+                                document.getElementById('createAccount').disa
+                                fetch('https://api.ipify.org/?format=json').then(result => result.json())
+                                    .then(data => {
+                                        firebase.database().ref('Users/').push().set({
+                                            "username": txtUsername.value,
+                                            "token": "pretty-id" + Math.random(100001, 999999).toString(),
+                                            "password": txtPassword.value,
+                                            "active": false,
+                                            "profileImage": "",
+                                            lastIp: data.ip
+                                        })
+                                        document.getElementById('requiredSpan').innerHTML = "Kayıt Başarılı";
+                                        document.getElementById('requiredSpan').style.color = "	mediumspringgreen";
+                                        setTimeout(() => {
+                                            document.getElementById('requiredSpan').innerHTML = "";
+                                            document.getElementById('requiredSpan').style.color = "	red";
+
+                                        }, 1000);
+                                    })
+
+                            }
+                        } else {
+                            fetch('https://api.ipify.org/?format=json').then(result => result.json())
+                                .then(data => {
+                                    firebase.database().ref('Users/').push().set({
+                                        "username": txtUsername.value,
+                                        "token": "pretty-id" + Math.random(100001, 999999).toString(),
+                                        "password": txtPassword.value,
+                                        "active": false,
+                                        "profileImage": "",
+                                        lastIp: data.ip
+                                    })
+                                    document.getElementById('requiredSpan').innerHTML = "Kayıt Başarılı";
+                                    document.getElementById('requiredSpan').style.color = "	mediumspringgreen";
+                                    setTimeout(() => {
+                                        document.getElementById('requiredSpan').innerHTML = "";
+                                        document.getElementById('requiredSpan').style.color = "	red";
+
+                                    }, 1000);
+                                })
                         }
-                        if (!flag) {
-                            firebase.database().ref('Users/').push().set({
-                                "username": txtUsername.value,
-                                "token": "pretty-id" + Math.random(100001, 999999).toString(),
-                                "password": txtPassword.value,
-                                "active": false
-                            })
-                            document.getElementById('requiredSpan').innerHTML = "Kayıt Başarılı";
-                            document.getElementById('requiredSpan').style.color = "	mediumspringgreen";
-                            setTimeout(() => {
-                                document.getElementById('requiredSpan').innerHTML = "";
-                                document.getElementById('requiredSpan').style.color = "	red";
-                            }, 1000);
-                        }
+                        //console.log(Object.values(response))
+
                     })
                 } else {
                     document.getElementById('requiredSpan').innerHTML = "Şifreler Uyuşmuyor";
@@ -276,7 +307,7 @@
                 <input type="password" placeholder="Password" name="uname" id="id_txtPassword" required>
                 <input type="password" placeholder="Repeat Password" name="uname" id="id_txtRepeatPassword" required>
                 <span id="requiredSpan"></span>
-                <input type="button" value="Create Account" onclick="registerHandler()" />
+                <input id="createAccount" type="button" value="Create Account" onclick="registerHandler()" />
                 <a style="text-align: center;  display: flex; align-items: center; justify-content: center; margin-top: 5px; " href="#" onclick="routeLogin()">
                               Redirect to login
                         </a>

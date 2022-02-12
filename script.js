@@ -147,7 +147,6 @@ function setHiddenChatArea(options) {
 function clickUser(params) {
 
     clicked_id = params.children[0].id;
-    clicked_profileImage = params.children[0].src;
     var contactListMessage = {
         init: function() {
             this.cacheDOM();
@@ -170,6 +169,7 @@ function clickUser(params) {
             this.$chatHistoryList[0].innerHTML = "";
         },
         renderContactMessage: function() {
+
             var auth = JSON.parse(window.localStorage.getItem('prettyAuth'));
             var clicked_username = clicked_id.split('/')[0];
             var clicked_activate = params.lastElementChild.children[1].textContent.trim();
@@ -339,3 +339,4 @@ function saveChanges() {
 
 
 }
+document.getElementById('globalIp').innerText = localStorage.getItem('prettyAuth').jparse().jget('lastIp') + " Ip adresi üzerinden katılım sağlandınız.";
