@@ -212,7 +212,6 @@
 
                                         }, 1000);
                                     })
-
                             }
                         } else {
                             fetch('https://api.ipify.org/?format=json').then(result => result.json())
@@ -230,12 +229,9 @@
                                     setTimeout(() => {
                                         document.getElementById('requiredSpan').innerHTML = "";
                                         document.getElementById('requiredSpan').style.color = "	red";
-
                                     }, 1000);
                                 })
                         }
-                        //console.log(Object.values(response))
-
                     })
                 } else {
                     document.getElementById('requiredSpan').innerHTML = "Şifreler Uyuşmuyor";
